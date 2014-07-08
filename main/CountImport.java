@@ -1,12 +1,14 @@
+package main;
+
 import java.io.*;
 import java.util.regex.*;
 
 /**
- * Created by huidong on 7/2/14.
+ * Created by huidong on 7/3/14.
  */
-public class CountKeyword {
-    static int importCount = 0;
-    private static boolean isComment = false;
+public class CountImport {
+    int importCount = 0;
+    private boolean isComment = false;
 
     public void javaInADirectory(String path) {
         //for each file or directory
@@ -37,34 +39,17 @@ public class CountKeyword {
         while ((line = bufferedreader.readLine()) != null) {
             //exclude comment line and blank line
             if(!isEmptyLine(line) && !isCommentLine(line)) {
-                System.out.println(line);
+//                System.out.println(line);
                 String[] s = line.replaceAll("\"[^\"]*\"", "").trim().split("[^0-9a-zA-Z]+");
                 for (int i = 0; i < s.length; i++) {
-                    System.out.println(s[i]);
-                    if(s[i].equals("import")) {
+//                    System.out.println(s[i]);
+                    if(s[i].equals("true")) {
                         importCount++;
                     }
                 }
             }
-            //exclude strings in "" or ''
-            //split line with none characters
-
-            //if words are keyword, count them.
-
-
-//            String newline = line.replaceAll("\".*\"", "");
-//            System.out.println(newline);
-            /*Matcher matcher = pattern.matcher(line);
-            while (matcher.find()) {
-                System.out.println(line);
-//                String[] s = line.split("\"[^\"]*\"");
-                String[] s = line.replaceAll("\"[^\"]*\"", "").trim().split("[^0-9a-zA-Z]+");
-                for (int i = 0; i < s.length; i++) {
-                    System.out.println(s[i]);
-                }
-            }*/
         }
-        System.out.println("'import' appears " + importCount + " times in files " + path);
+        System.out.println("'true' appears " + importCount + " times in files " + path);
         bufferedreader.close();
         filereader.close();
     }
@@ -74,16 +59,36 @@ public class CountKeyword {
     }
 
     public boolean isCommentLine(String line) {
+        //comment line within '/* */'
+        if(isComment) {
+            if (line.trim().matches(".*\\*/$")) {
+                isComment = false;
+            }
+            return true;
+        }
+        //comment line begin with '//'
+        else {
+            if (line.trim().matches("^//.*")) {
+            return true;
+            } else {
+                if (line.trim().matches("^/\\*.*")) {
+                    isComment = true;
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
     public static void main(String args[]) {
-        CountKeyword countkeyword = new CountKeyword();
-        try {
-            countkeyword.keywordInAFile("D:\\IdeaProject\\Small\\src\\CountKeyword.java");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        CountImport countimport = new CountImport();
+//        try {
+//            countimport.keywordInAFile("D:\\IdeaProject\\Small\\src\\CountImport.java");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        countimport.javaInADirectory("D:\\IdeaProject\\Small\\src");
     }
 
 }

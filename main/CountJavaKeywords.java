@@ -1,3 +1,5 @@
+package main;
+
 import java.io.*;
 import java.util.*;
 
@@ -56,7 +58,6 @@ public class CountJavaKeywords {
             if(!isEmptyLine(line) && !isCommentLine(line)) {
                 //System.out.println(line);
                 String[] words = line.replaceAll("\"[^\"]*\"", "").trim().split("[^0-9a-zA-Z]+");
-                //for (int i = 0; i < words.length; i++)
                 for ( String s:words) {
                     //System.out.println(s[i]);
                     if(javaKeysMap.containsKey(s)) {
