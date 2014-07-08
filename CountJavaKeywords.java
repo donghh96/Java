@@ -22,8 +22,8 @@ public class CountJavaKeywords {
     }
 
     public void printJavaKeysMap() {
-        for (Iterator iterator = javaKeysMap.entrySet().iterator() ; iterator.hasNext() ;) {
-            Map.Entry entry = (Map.Entry)iterator.next();
+        for (Map.Entry<String, Integer> keyCountEntry : javaKeysMap.entrySet()) {
+            Map.Entry entry = (Map.Entry) keyCountEntry;
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
     }
@@ -32,7 +32,7 @@ public class CountJavaKeywords {
         //for each file or directory
         File dir = new File(path);
         File[] files = dir.listFiles();
-        //for ( int i = 0; i < files.length; i++)
+
         for ( File f:files){
             if(f.isDirectory()) {
                 javaKeysInADirectory(f.getAbsolutePath());
@@ -82,11 +82,7 @@ public class CountJavaKeywords {
             isComment = true;
         }
 
-        if(isComment || line.trim().matches("^//.*"))  {
-            return true;
-        } else {
-            return false;
-        }
+        return isComment || line.trim().matches("^//.*");
     }
 
     public void run(String path) {
