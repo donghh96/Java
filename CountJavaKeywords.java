@@ -1,12 +1,11 @@
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
 
 /**
  * Created by huidong on 7/3/14.
+ * Count java keywords in a directory.
  */
 public class CountJavaKeywords {
-    int importCount = 0;
     boolean isComment = false;
     HashMap<String, Integer> javaKeysMap = new HashMap<String, Integer>();
 
@@ -17,52 +16,51 @@ public class CountJavaKeywords {
             "this","throw","throws","transient","try","void","volatile","while"};
 
     public void putKeysToMap() {
-        for ( int i = 0; i < javaKeywords.length; i++) {
-            javaKeysMap.put(javaKeywords[i], 0);
+        for ( String s:javaKeywords) {
+            javaKeysMap.put(s, 0);
         }
     }
 
     public void printJavaKeysMap() {
-        Iterator iterator = javaKeysMap.entrySet().iterator();//Iterator
-        while(iterator.hasNext()) {
+        for (Iterator iterator = javaKeysMap.entrySet().iterator() ; iterator.hasNext() ;) {
             Map.Entry entry = (Map.Entry)iterator.next();
-            System.out.println((String)entry.getKey() + ": " +(Integer)entry.getValue());
+            System.out.println(entry.getKey() + ": " + entry.getValue());
         }
     }
 
     public void javaKeysInADirectory(String path) {
-        putKeysToMap();
         //for each file or directory
         File dir = new File(path);
         File[] files = dir.listFiles();
-        for ( int i = 0; i < files.length; i++) {
-            if(files[i].isDirectory()) {
-                javaKeysInADirectory(files[i].getAbsolutePath());
+        //for ( int i = 0; i < files.length; i++)
+        for ( File f:files){
+            if(f.isDirectory()) {
+                javaKeysInADirectory(f.getAbsolutePath());
             }else {
                 try {
-                    javaKeysInAFile(files[i].getAbsolutePath());
+                    javaKeysInAFile(f.getAbsolutePath());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
-        printJavaKeysMap();
     }
 
     public void javaKeysInAFile(String path) throws IOException {
         FileReader filereader = new FileReader(path);
         BufferedReader bufferedreader = new BufferedReader(filereader);
 
-        String line = null;
+        String line;
         while ((line = bufferedreader.readLine()) != null) {
             //exclude comment line and blank line
             if(!isEmptyLine(line) && !isCommentLine(line)) {
-//                System.out.println(line);
-                String[] s = line.replaceAll("\"[^\"]*\"", "").trim().split("[^0-9a-zA-Z]+");
-                for (int i = 0; i < s.length; i++) {
-//                    System.out.println(s[i]);
-                    if(javaKeysMap.containsKey(s[i])) {
-                        javaKeysMap.put(s[i], javaKeysMap.get(s[i]) + 1 );
+                //System.out.println(line);
+                String[] words = line.replaceAll("\"[^\"]*\"", "").trim().split("[^0-9a-zA-Z]+");
+                //for (int i = 0; i < words.length; i++)
+                for ( String s:words) {
+                    //System.out.println(s[i]);
+                    if(javaKeysMap.containsKey(s)) {
+                        javaKeysMap.put(s, javaKeysMap.get(s) + 1 );
                     }
                 }
             }
@@ -77,29 +75,28 @@ public class CountJavaKeywords {
     }
 
     public boolean isCommentLine(String line) {
-        //comment line within '/* */'
-        if(isComment) {
-            if (line.trim().matches(".*\\*/$")) {
-                isComment = false;
-            }
+        if(isComment && line.trim().matches(".*\\*/$")) {
+            isComment = false;
+        }
+        if(!isComment && line.trim().matches("^/\\*.*")) {
+            isComment = true;
+        }
+
+        if(isComment || line.trim().matches("^//.*"))  {
             return true;
+        } else {
+            return false;
         }
-        //comment line begin with '//'
-        else {
-            if (line.trim().matches("^//.*")) {
-                return true;
-            } else {
-                if (line.trim().matches("^/\\*.*")) {
-                    isComment = true;
-                    return true;
-                }
-            }
-        }
-        return false;
+    }
+
+    public void run(String path) {
+        putKeysToMap();
+        javaKeysInADirectory(path);
+        printJavaKeysMap();
     }
 
     public static void main(String args[]) {
         CountJavaKeywords countJavaKeys = new CountJavaKeywords();
-        countJavaKeys.javaKeysInADirectory("D:\\IdeaProject\\Small\\src");
+        countJavaKeys.run("D:\\IdeaProject\\Small\\src");
     }
 }
